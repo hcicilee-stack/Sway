@@ -1,0 +1,22 @@
+{
+  "name": "Sway",
+  "short_name": "Sway",
+  "description": "极简 ADHD 友好治愈视觉呼吸器",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020408",
+  "theme_color": "#02040a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/hcicilee-stack/FlowSpace/main/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/hcicilee-stack/FlowSpace/main/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
