@@ -709,16 +709,16 @@ export default function App() {
       </div>
 
       {/* --- CONTROL OVERLAYS WRAPPER (Guarantees iOS Safari stacking context above canvas) --- */}
-      <div className="absolute inset-0 z-10 pointer-events-none transform-gpu">
+      <div className="absolute inset-0 z-30 pointer-events-none transform-gpu">
         {/* --- HEADER ZONE --- */}
-        <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-end pointer-events-none z-20">
+        <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-end pointer-events-none z-30">
           {/* Right PWA Install trigger banner */}
           <div className="flex items-center gap-2 pointer-events-auto">
             {isDeferredPrompt && (
               <button
                 onClick={handleInstallClick}
                 id="btn-desktop-install"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-teal-500/20 bg-teal-500/10 text-teal-300 hover:bg-teal-500/15 duration-200 transition-all cursor-pointer backdrop-blur-md"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-teal-500/25 bg-[#0a122c] text-teal-300 hover:bg-teal-950/40 duration-200 transition-all cursor-pointer"
               >
                 <Download size={13} />
                 <span>安装至桌面</span>
@@ -729,7 +729,7 @@ export default function App() {
               onClick={() => setShowOnboarding(true)}
               aria-label="查看指南"
               id="btn-onboarding-help"
-              className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-900 bg-slate-950/40 text-slate-400 hover:text-slate-100 duration-200 transition-all cursor-pointer backdrop-blur-md"
+              className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-800 bg-[#090d1f] text-slate-400 hover:text-slate-100 duration-200 transition-all cursor-pointer"
             >
               <HelpCircle size={15} />
             </button>
@@ -739,20 +739,17 @@ export default function App() {
         {/* --- ONBOARDING MODAL OR HELPER BANNER --- */}
         <AnimatePresence>
           {showOnboarding && (
-            <div className="absolute inset-0 z-40 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-6 pointer-events-auto">
+            <div className="absolute inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-6 pointer-events-auto">
               <motion.div
                 initial={{ scale: 0.96, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.96, opacity: 0 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-xs rounded-2xl border border-white/[0.06] bg-[#030611]/80 backdrop-blur-xl p-6 flex flex-col items-center text-center text-slate-100 shadow-2xl relative"
+                className="w-full max-w-xs rounded-2xl border border-slate-800 bg-[#05081c]/95 p-6 flex flex-col items-center text-center text-slate-100 shadow-2xl relative"
                 id="onboarding-modal-container"
               >
                 <button
-                  onClick={() => {
-                    setShowOnboarding(false);
-                    triggerSoundWithFadeIn();
-                  }}
+                  onClick={() => setShowOnboarding(false)}
                   className="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center bg-white/[0.03] border border-white/[0.05] text-slate-400 hover:text-slate-100 duration-200 transition-colors"
                 >
                   <X size={11} />
@@ -777,10 +774,7 @@ export default function App() {
                 </div>
 
                 <button
-                  onClick={() => {
-                    setShowOnboarding(false);
-                    triggerSoundWithFadeIn();
-                  }}
+                  onClick={() => setShowOnboarding(false)}
                   className="w-full mt-2 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.12] active:bg-white/[0.15] border border-white/[0.1] text-teal-300 font-medium duration-200 transition-all text-xs cursor-pointer tracking-wider"
                 >
                   开启宁静呼吸
@@ -798,11 +792,11 @@ export default function App() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 8, scale: 0.98 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto"
+              className="absolute bottom-36 sm:bottom-28 left-1/2 -translate-x-1/2 z-40 pointer-events-auto"
             >
               <button
                 onClick={triggerSoundWithFadeIn}
-                className="px-6 py-2.5 rounded-full border border-teal-500/10 bg-teal-500/[0.04] hover:bg-teal-500/[0.08] text-teal-300 text-xs font-medium tracking-widest backdrop-blur-md shadow-lg transition-all duration-300 cursor-pointer flex items-center gap-2 animate-pulse hover:animate-none"
+                className="px-6 py-2.5 rounded-full border border-teal-500/25 bg-[#0d1635] hover:bg-teal-950/40 text-teal-300 text-xs font-medium tracking-widest shadow-lg transition-all duration-300 cursor-pointer flex items-center gap-2 animate-pulse hover:animate-none"
                 style={{ animationDuration: '2s' }}
               >
                 <Volume2 size={12} className="text-teal-300/80 animate-bounce" style={{ animationDuration: '1.5s' }} />
@@ -813,14 +807,14 @@ export default function App() {
         </AnimatePresence>
 
         {/* --- FLOATING CONTROLS PANEL SLIDER BUTTON --- */}
-        <div className="absolute bottom-5 right-5 z-30 pointer-events-auto">
+        <div className="absolute bottom-10 right-5 sm:bottom-6 sm:right-6 z-40 pointer-events-auto">
           <button
             onClick={() => setShowSettings(!showSettings)}
             id="btn-settings-toggle"
-            className={`h-11 px-4 rounded-full flex items-center gap-2 border duration-300 transition-all shadow-lg backdrop-blur-md cursor-pointer ${
+            className={`h-11 px-4 rounded-full flex items-center gap-2 border duration-300 transition-all shadow-lg cursor-pointer ${
               showSettings 
-                ? 'border-teal-500/30 bg-teal-500/15 text-teal-300' 
-                : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:scale-102'
+                ? 'border-teal-500/40 bg-teal-500/20 text-teal-300' 
+                : 'border-slate-800 bg-[#0a0f26] text-slate-400 hover:text-slate-200 hover:scale-102'
             }`}
           >
             <Sliders size={15} />
@@ -837,7 +831,7 @@ export default function App() {
               exit={{ y: 80, opacity: 0 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
               id="preferences-overlay-panel"
-              className="absolute bottom-18 left-5 right-5 sm:left-auto sm:right-5 sm:w-80 z-30 border border-white/10 bg-slate-950/80 backdrop-blur-xl rounded-2xl p-5 shadow-2xl preferences-panel flex flex-col gap-4.5 pointer-events-auto"
+              className="absolute bottom-24 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-20 sm:w-80 z-40 border border-slate-800 bg-[#04081c] rounded-2xl p-5 shadow-2xl preferences-panel flex flex-col gap-4.5 pointer-events-auto max-h-[75vh] overflow-y-auto"
             >
             {/* Title / Header of panel */}
             <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
