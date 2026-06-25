@@ -644,20 +644,21 @@ export default function App() {
 
   // --- Capture and bind Pointer touch coordinates natively ---
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (showSettings) {
-      // Allow interactions with the panel without creating waves in the canvas background
-      const target = e.target as HTMLElement;
-      if (target.closest('.preferences-panel')) return;
+    const target = e.target as HTMLElement;
+    // Do not trigger full screen touch interaction if interacting with UI overlay components
+    if (
+      target.closest('.preferences-panel') || 
+      target.closest('#onboarding-modal-container') || 
+      target.closest('#btn-onboarding-help') || 
+      target.closest('#btn-settings-toggle') ||
+      target.closest('#btn-desktop-install')
+    ) {
+      return;
     }
 
     const container = containerRef.current;
     if (!container) return;
     const rect = container.getBoundingClientRect();
-    
-    // Smooth out onboarding help immediately on touching
-    if (showOnboarding) {
-      setShowOnboarding(false);
-    }
 
     isPressingRef.current = true;
     touchState.current.isInteracting = true;
@@ -702,134 +703,142 @@ export default function App() {
       {/* Background stardust stars (visual relaxation backing) */}
       <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
-      {/* --- HEADER ZONE --- */}
-      <header className="relative z-10 w-full px-6 pt-5 pb-2 flex items-center justify-end pointer-events-none">
-        {/* Right PWA Install trigger banner */}
-        <div className="flex items-center gap-2 pointer-events-auto">
-          {isDeferredPrompt && (
-            <button
-              onClick={handleInstallClick}
-              id="btn-desktop-install"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-teal-500/20 bg-teal-500/10 text-teal-300 hover:bg-teal-500/15 duration-200 transition-all cursor-pointer backdrop-blur-md"
-            >
-              <Download size={13} />
-              <span>安装至桌面</span>
-            </button>
-          )}
-
-          <button
-            onClick={() => setShowOnboarding(true)}
-            aria-label="查看指南"
-            id="btn-onboarding-help"
-            className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-900 bg-slate-950/40 text-slate-400 hover:text-slate-100 duration-200 transition-all cursor-pointer backdrop-blur-md"
-          >
-            <HelpCircle size={15} />
-          </button>
-        </div>
-      </header>
-
       {/* --- CENTRAL INTERACTIVE CANVAS --- */}
       <div className="absolute inset-0 z-0">
         <canvas ref={canvasRef} id="mindful-fluid-sphere-canvas" className="w-full h-full block cursor-none" />
       </div>
 
-      {/* --- ONBOARDING MODAL OR HELPER BANNER --- */}
-      <AnimatePresence>
-        {showOnboarding && (
-          <div className="absolute inset-0 z-40 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-6">
-            <motion.div
-              initial={{ scale: 0.96, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.96, opacity: 0 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-xs rounded-2xl border border-white/[0.06] bg-[#030611]/80 backdrop-blur-xl p-6 flex flex-col items-center text-center text-slate-100 shadow-2xl relative"
-              id="onboarding-modal-container"
-            >
+      {/* --- CONTROL OVERLAYS WRAPPER (Guarantees iOS Safari stacking context above canvas) --- */}
+      <div className="absolute inset-0 z-10 pointer-events-none transform-gpu">
+        {/* --- HEADER ZONE --- */}
+        <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-end pointer-events-none z-20">
+          {/* Right PWA Install trigger banner */}
+          <div className="flex items-center gap-2 pointer-events-auto">
+            {isDeferredPrompt && (
               <button
-                onClick={() => setShowOnboarding(false)}
-                className="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center bg-white/[0.03] border border-white/[0.05] text-slate-400 hover:text-slate-100 duration-200 transition-colors"
+                onClick={handleInstallClick}
+                id="btn-desktop-install"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-teal-500/20 bg-teal-500/10 text-teal-300 hover:bg-teal-500/15 duration-200 transition-all cursor-pointer backdrop-blur-md"
               >
-                <X size={11} />
+                <Download size={13} />
+                <span>安装至桌面</span>
               </button>
+            )}
 
-              <div className="flex flex-col items-center gap-4 my-4">
-                <div className="w-12 h-12 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-300/90 animate-pulse">
-                  <Sparkles size={20} />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="text-sm font-medium tracking-widest text-[#a5b4fc]">
-                    极简视觉呼吸器
-                  </h3>
-                  <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-relaxed">
-                    YOUR SERENE SANCTUARY
+            <button
+              onClick={() => setShowOnboarding(true)}
+              aria-label="查看指南"
+              id="btn-onboarding-help"
+              className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-900 bg-slate-950/40 text-slate-400 hover:text-slate-100 duration-200 transition-all cursor-pointer backdrop-blur-md"
+            >
+              <HelpCircle size={15} />
+            </button>
+          </div>
+        </header>
+
+        {/* --- ONBOARDING MODAL OR HELPER BANNER --- */}
+        <AnimatePresence>
+          {showOnboarding && (
+            <div className="absolute inset-0 z-40 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-6 pointer-events-auto">
+              <motion.div
+                initial={{ scale: 0.96, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.96, opacity: 0 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full max-w-xs rounded-2xl border border-white/[0.06] bg-[#030611]/80 backdrop-blur-xl p-6 flex flex-col items-center text-center text-slate-100 shadow-2xl relative"
+                id="onboarding-modal-container"
+              >
+                <button
+                  onClick={() => {
+                    setShowOnboarding(false);
+                    triggerSoundWithFadeIn();
+                  }}
+                  className="absolute top-4 right-4 w-6 h-6 rounded-full flex items-center justify-center bg-white/[0.03] border border-white/[0.05] text-slate-400 hover:text-slate-100 duration-200 transition-colors"
+                >
+                  <X size={11} />
+                </button>
+
+                <div className="flex flex-col items-center gap-4 my-4">
+                  <div className="w-12 h-12 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-300/90 animate-pulse">
+                    <Sparkles size={20} />
+                  </div>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-medium tracking-widest text-[#a5b4fc]">
+                      极简视觉呼吸器
+                    </h3>
+                    <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-relaxed">
+                      YOUR SERENE SANCTUARY
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-slate-400/80 leading-relaxed font-sans max-w-[200px] mt-1">
+                    按住屏幕以注入阻力慢放时间
+                    捕捉指尖下平静的微澜颤动
                   </p>
                 </div>
-                <p className="text-[11px] text-slate-400/80 leading-relaxed font-sans max-w-[200px] mt-1">
-                  按住屏幕以注入阻力慢放时间
-                  捕捉指尖下平静的微澜颤动
-                </p>
-              </div>
 
+                <button
+                  onClick={() => {
+                    setShowOnboarding(false);
+                    triggerSoundWithFadeIn();
+                  }}
+                  className="w-full mt-2 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.12] active:bg-white/[0.15] border border-white/[0.1] text-teal-300 font-medium duration-200 transition-all text-xs cursor-pointer tracking-wider"
+                >
+                  开启宁静呼吸
+                </button>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* --- FLOATING CENTER AMBIENT PROMPT --- */}
+        <AnimatePresence>
+          {!showOnboarding && showAmbientPrompt && !soundEnabled && (
+            <motion.div
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.98 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute bottom-24 left-1/2 -translate-x-1/2 z-20 pointer-events-auto"
+            >
               <button
-                onClick={() => setShowOnboarding(false)}
-                className="w-full mt-2 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.12] active:bg-white/[0.15] border border-white/[0.1] text-teal-300 font-medium duration-200 transition-all text-xs cursor-pointer tracking-wider"
+                onClick={triggerSoundWithFadeIn}
+                className="px-6 py-2.5 rounded-full border border-teal-500/10 bg-teal-500/[0.04] hover:bg-teal-500/[0.08] text-teal-300 text-xs font-medium tracking-widest backdrop-blur-md shadow-lg transition-all duration-300 cursor-pointer flex items-center gap-2 animate-pulse hover:animate-none"
+                style={{ animationDuration: '2s' }}
               >
-                开启宁静呼吸
+                <Volume2 size={12} className="text-teal-300/80 animate-bounce" style={{ animationDuration: '1.5s' }} />
+                <span>开启环境音</span>
               </button>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
 
-      {/* --- FLOATING CENTER AMBIENT PROMPT --- */}
-      <AnimatePresence>
-        {!showOnboarding && showAmbientPrompt && !soundEnabled && (
-          <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 pointer-events-auto"
+        {/* --- FLOATING CONTROLS PANEL SLIDER BUTTON --- */}
+        <div className="absolute bottom-5 right-5 z-30 pointer-events-auto">
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            id="btn-settings-toggle"
+            className={`h-11 px-4 rounded-full flex items-center gap-2 border duration-300 transition-all shadow-lg backdrop-blur-md cursor-pointer ${
+              showSettings 
+                ? 'border-teal-500/30 bg-teal-500/15 text-teal-300' 
+                : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:scale-102'
+            }`}
           >
-            <button
-              onClick={triggerSoundWithFadeIn}
-              className="px-6 py-2.5 rounded-full border border-teal-500/10 bg-teal-500/[0.04] hover:bg-teal-500/[0.08] text-teal-300 text-xs font-medium tracking-widest backdrop-blur-md shadow-lg transition-all duration-300 cursor-pointer flex items-center gap-2 animate-pulse hover:animate-none"
-              style={{ animationDuration: '2s' }}
+            <Sliders size={15} />
+            <span className="text-xs font-semibold">偏好调节与音效</span>
+          </button>
+        </div>
+
+        {/* --- SETTINGS GLASSBOARD PREFERENCES DRAWER --- */}
+        <AnimatePresence>
+          {showSettings && (
+            <motion.div
+              initial={{ y: 80, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 80, opacity: 0 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              id="preferences-overlay-panel"
+              className="absolute bottom-18 left-5 right-5 sm:left-auto sm:right-5 sm:w-80 z-30 border border-white/10 bg-slate-950/80 backdrop-blur-xl rounded-2xl p-5 shadow-2xl preferences-panel flex flex-col gap-4.5 pointer-events-auto"
             >
-              <Volume2 size={12} className="text-teal-300/80 animate-bounce" style={{ animationDuration: '1.5s' }} />
-              <span>开启环境音</span>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* --- FLOATING CONTROLS PANEL SLIDER BUTTON --- */}
-      <div className="absolute bottom-5 right-5 z-30">
-        <button
-          onClick={() => setShowSettings(!showSettings)}
-          id="btn-settings-toggle"
-          className={`h-11 px-4 rounded-full flex items-center gap-2 border duration-300 transition-all shadow-lg backdrop-blur-md cursor-pointer ${
-            showSettings 
-              ? 'border-teal-500/30 bg-teal-500/15 text-teal-300' 
-              : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:text-slate-200 hover:scale-102'
-          }`}
-        >
-          <Sliders size={15} />
-          <span className="text-xs font-semibold">偏好调节与音效</span>
-        </button>
-      </div>
-
-      {/* --- SETTINGS GLASSBOARD PREFERENCES DRAWER --- */}
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div
-            initial={{ y: 80, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 80, opacity: 0 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            id="preferences-overlay-panel"
-            className="absolute bottom-18 left-5 right-5 sm:left-auto sm:right-5 sm:w-80 z-30 border border-white/10 bg-slate-950/80 backdrop-blur-xl rounded-2xl p-5 shadow-2xl preferences-panel flex flex-col gap-4.5"
-          >
             {/* Title / Header of panel */}
             <div className="flex items-center justify-between border-b border-white/5 pb-2.5">
               <div className="flex items-center gap-1.5 text-slate-200">
@@ -1019,6 +1028,7 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div> {/* --- END OF CONTROL OVERLAYS WRAPPER --- */}
     </div>
   );
 }
