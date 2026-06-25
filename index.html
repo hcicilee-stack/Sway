@@ -2,9 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Sway</title>
-    <!-- PWA Settings -->
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#020408" />
     <meta name="mobile-web-app-capable" content="yes" />
@@ -17,15 +16,17 @@
           navigator.serviceWorker.register('/sw.js')
             .then(reg => {
               console.log('Sway Service Worker Registered!', reg.scope);
-              // Proactively check for updates to bust stale cache-first policies
               reg.update();
               reg.onupdatefound = () => {
                 const installingWorker = reg.installing;
                 if (installingWorker) {
                   installingWorker.onstatechange = () => {
+                    /* 2. 移除暴力的 window.location.reload()。
+                       新代码下载好后会在后台静默待命，用户下次打开或正常切后台时自然生效。
+                       彻底根除“黑屏几秒、闪烁、UI丢失”的冷启动惨剧。
+                    */
                     if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                      console.log('New content available; forcing immediate reload...');
-                      window.location.reload();
+                      console.log('New version downloaded silently, will apply on next launch.');
                     }
                   };
                 }
@@ -41,4 +42,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-
