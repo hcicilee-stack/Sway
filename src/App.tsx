@@ -694,7 +694,7 @@ export default function App() {
     <div 
       ref={containerRef}
       id="viewport-main"
-      className="fixed inset-0 w-full h-[100dvh] flex flex-col justify-between overflow-hidden bg-[#02040a] font-sans text-slate-100 select-none touch-none animate-fade-in"
+      className="absolute inset-0 w-full h-full overflow-hidden bg-[#02040a] font-sans text-slate-100 select-none touch-none animate-fade-in"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUpOrLeave}
