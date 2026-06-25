@@ -198,9 +198,6 @@ export default function App() {
   // --- Starfield Constellation reference from Code A ---
   const starfieldRef = useRef<Star[]>([]);
 
-  // --- Breathing Status Reactive values ---
-  const [breathPhase, setBreathPhase] = useState<'inhale' | 'exhale'>('inhale');
-  const [breathProgress, setBreathProgress] = useState<number>(0.5); // normalized scale
 
   // --- Setup starfield constellation on mount ---
   useEffect(() => {
@@ -352,24 +349,21 @@ export default function App() {
     let timeAccumulator = 0;
     let lastTime = performance.now();
 
-    // Resize observer setup to keep canvas responsive without hardcoded dimensions
+    // Keep canvas responsive with clean, high-performance window event listeners (avoids recursive ResizeObserver loops)
     const resizeCanvas = () => {
-      if (!canvas || !containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
+      if (!canvas) return;
+      const width = window.innerWidth;
+      const height = window.innerHeight;
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
       ctx.scale(dpr, dpr);
-      canvas.style.width = `${rect.width}px`;
-      canvas.style.height = `${rect.height}px`;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
     };
 
-    const resizeObserver = new ResizeObserver(() => {
-      resizeCanvas();
-    });
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
-    }
+    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('orientationchange', resizeCanvas);
     resizeCanvas(); // initial draw sizing
 
     // Local 3D state coordinates tracking
@@ -410,9 +404,7 @@ export default function App() {
       const currentBreatheScale = 1.0 + breatheWave * 0.14;
       const sphereRadius = baseSphereRadius * currentBreatheScale;
 
-      // Synchronize breathing feedback metadata smoothly
-      setBreathProgress(currentBreatheScale);
-      setBreathPhase(breatheWave >= 0 ? 'inhale' : 'exhale');
+      // (High-frequency state synchronization removed from frame loop to prevent recursive React renders and Safari memory crashes)
 
       // Intercept and update active touch factor (gradual glide transitions)
       const t = touchState.current;
@@ -645,9 +637,8 @@ export default function App() {
 
     return () => {
       cancelAnimationFrame(animFrameId);
-      if (containerRef.current) {
-        resizeObserver.unobserve(containerRef.current);
-      }
+      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('orientationchange', resizeCanvas);
     };
   }, [paletteId, breatheSpeed, lineDensity, turbulenceScale]);
 
