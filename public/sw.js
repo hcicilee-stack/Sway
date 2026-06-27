@@ -1,12 +1,13 @@
-const CACHE_NAME = 'sway-cache-v2'; // Bump class version to bust old cache
+﻿const CACHE_NAME = 'sway-cache-v3';
+const BASE_URL = new URL(self.registration.scope);
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/manifest.json'
-];
+  './',
+  './index.html',
+  './manifest.json'
+].map((asset) => new URL(asset, BASE_URL).toString());
 
 self.addEventListener('install', (e) => {
-  self.skipWaiting(); // Force active immediately
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS).catch(err => console.log('SW Cache open warning:', err));
@@ -15,7 +16,7 @@ self.addEventListener('install', (e) => {
 });
 
 self.addEventListener('activate', (e) => {
-  self.clients.claim(); // Take control immediately
+  self.clients.claim();
   e.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
@@ -29,12 +30,10 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Network First strategy (falls back to cache if offline)
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
-  // Bypass and fetch directly for browser hot-reload, dev scripts, or chrome extension calls
-  if (url.origin !== self.location.origin) {
+  if (url.origin !== self.location.origin || e.request.method !== 'GET') {
     return;
   }
 
@@ -44,22 +43,18 @@ self.addEventListener('fetch', (e) => {
         if (!response || response.status !== 200) {
           return response;
         }
-        // Cache same-origin valid GET requests
-        if (e.request.method === 'GET' && url.origin === self.location.origin) {
-          const responseToCache = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(e.request, responseToCache);
-          });
-        }
+        const responseToCache = response.clone();
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(e.request, responseToCache);
+        });
         return response;
       })
       .catch(() => {
-        // Fallback to cache when offline
         return caches.match(e.request).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          // offline fallback placeholder if any
+          return caches.match(new URL('./index.html', BASE_URL).toString());
         });
       })
   );

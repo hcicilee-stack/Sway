@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import { 
   Sliders, 
   Volume2, 
@@ -31,15 +31,15 @@ interface Star {
 // --- Color Palettes Config ---
 const PALETTES: Record<PaletteId, Palette> = {
   aurora: {
-    name: '极光之约',
+    name: '鏋佸厜涔嬬害',
     colors: ['#10b981', '#06b6d4', '#8b5cf6'],
   },
   cosmos: {
-    name: '谧夜星河',
+    name: '璋у鏄熸渤',
     colors: ['#4e54c8', '#7952b3', '#8a2be2'],
   },
   sunset: {
-    name: '余晖暖阳',
+    name: '浣欐櫀鏆栭槼',
     colors: ['#ff8c00', '#e03131', '#ff007f'],
   }
 };
@@ -167,6 +167,21 @@ export default function App() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const synthRef = useRef<ProceduralWaves | null>(null);
   const brownAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const syncAppViewportHeight = () => {
+      document.documentElement.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+
+    syncAppViewportHeight();
+    window.addEventListener('resize', syncAppViewportHeight);
+    window.addEventListener('orientationchange', syncAppViewportHeight);
+
+    return () => {
+      window.removeEventListener('resize', syncAppViewportHeight);
+      window.removeEventListener('orientationchange', syncAppViewportHeight);
+    };
+  }, []);
 
   // --- Aesthetic and Physical Pref States ---
   const [paletteId, setPaletteId] = useState<PaletteId>('aurora');
@@ -694,7 +709,7 @@ export default function App() {
     <div 
       ref={containerRef}
       id="viewport-main"
-      className="absolute inset-0 w-full h-full overflow-hidden bg-[#02040a] font-sans text-slate-100 select-none touch-none animate-fade-in"
+      className="font-sans text-slate-100 select-none touch-none animate-fade-in"
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUpOrLeave}
@@ -704,12 +719,13 @@ export default function App() {
       <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:16px_16px]"></div>
 
       {/* --- CENTRAL INTERACTIVE CANVAS --- */}
-      <div className="absolute inset-0 z-0">
+      <div className="sway-canvas-layer">
         <canvas ref={canvasRef} id="mindful-fluid-sphere-canvas" className="w-full h-full block cursor-none" />
       </div>
 
+      <div className="sway-ui-layer">
       {/* --- HEADER ZONE --- */}
-      <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-end z-40">
+      <header className="sway-top-actions">
         {/* Right PWA Install trigger banner */}
         <div 
           className="flex items-center gap-2 pointer-events-auto"
@@ -722,13 +738,13 @@ export default function App() {
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-teal-500/25 bg-[#0a122c] text-teal-300 hover:bg-teal-950/40 duration-200 transition-all cursor-pointer"
             >
               <Download size={13} />
-              <span>安装至桌面</span>
+              <span>瀹夎鑷虫闈?/span>
             </button>
           )}
 
           <button
             onClick={() => setShowOnboarding(true)}
-            aria-label="查看指南"
+            aria-label="鏌ョ湅鎸囧崡"
             id="btn-onboarding-help"
             className="w-8 h-8 rounded-full flex items-center justify-center border border-slate-800 bg-[#090d1f] text-slate-400 hover:text-slate-100 duration-200 transition-all cursor-pointer"
           >
@@ -741,7 +757,7 @@ export default function App() {
       <AnimatePresence>
         {showOnboarding && (
           <div 
-            className="absolute inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-6 pointer-events-auto"
+            className="sway-modal-overlay pointer-events-auto"
             onPointerDown={(e) => e.stopPropagation()}
           >
             <motion.div
@@ -749,7 +765,7 @@ export default function App() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.96, opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="w-full max-w-xs rounded-2xl border border-slate-800 bg-[#05081c]/95 p-6 flex flex-col items-center text-center text-slate-100 shadow-2xl relative"
+              className="sway-modal-card w-full max-w-xs rounded-2xl border border-slate-800 bg-[#05081c]/95 p-6 flex flex-col items-center text-center text-slate-100 shadow-2xl relative"
               id="onboarding-modal-container"
             >
               <button
@@ -765,15 +781,15 @@ export default function App() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-sm font-medium tracking-widest text-[#a5b4fc]">
-                    极简视觉呼吸器
+                    鏋佺畝瑙嗚鍛煎惛鍣?
                   </h3>
                   <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-relaxed">
                     YOUR SERENE SANCTUARY
                   </p>
                 </div>
                 <p className="text-[11px] text-slate-400/80 leading-relaxed font-sans max-w-[200px] mt-1">
-                  按住屏幕以注入阻力慢放时间
-                  捕捉指尖下平静的微澜颤动
+                  鎸変綇灞忓箷浠ユ敞鍏ラ樆鍔涙參鏀炬椂闂?
+                  鎹曟崏鎸囧皷涓嬪钩闈欑殑寰緶棰ゅ姩
                 </p>
               </div>
 
@@ -781,7 +797,7 @@ export default function App() {
                 onClick={() => setShowOnboarding(false)}
                 className="w-full mt-2 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.12] active:bg-white/[0.15] border border-white/[0.1] text-teal-300 font-medium duration-200 transition-all text-xs cursor-pointer tracking-wider"
               >
-                开启宁静呼吸
+                寮€鍚畞闈欏懠鍚?
               </button>
             </motion.div>
           </div>
@@ -796,7 +812,7 @@ export default function App() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute bottom-[28%] left-1/2 -translate-x-1/2 z-40 pointer-events-auto"
+            className="sway-ambient-prompt pointer-events-auto"
             onPointerDown={(e) => e.stopPropagation()}
           >
             <button
@@ -804,7 +820,7 @@ export default function App() {
               className="px-6 py-2.5 rounded-full border border-teal-500/25 bg-[#0d1635] hover:bg-teal-950/40 text-teal-300 text-xs font-medium tracking-widest shadow-lg transition-all duration-300 cursor-pointer flex items-center gap-2 animate-pulse hover:animate-none"
             >
               <Volume2 size={12} className="text-teal-300/80 animate-bounce" />
-              <span>开启环境音</span>
+              <span>寮€鍚幆澧冮煶</span>
             </button>
           </motion.div>
         )}
@@ -812,7 +828,7 @@ export default function App() {
 
       {/* --- FLOATING CONTROLS PANEL SLIDER BUTTON --- */}
       <div 
-        className="absolute bottom-10 right-5 sm:bottom-6 sm:right-6 z-40 pointer-events-auto"
+        className="sway-settings-toggle pointer-events-auto"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <button
@@ -825,7 +841,7 @@ export default function App() {
           }`}
         >
           <Sliders size={15} />
-          <span className="text-xs font-semibold">偏好调节与音效</span>
+          <span className="text-xs font-semibold">鍋忓ソ璋冭妭涓庨煶鏁?/span>
         </button>
       </div>
 
@@ -838,7 +854,7 @@ export default function App() {
             exit={{ y: 80, opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             id="preferences-overlay-panel"
-            className="absolute bottom-24 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-20 sm:w-80 z-40 border border-slate-800 bg-slate-950/90 backdrop-blur-md rounded-2xl p-5 shadow-2xl preferences-panel flex flex-col gap-4.5 pointer-events-auto max-h-[60vh] sm:max-h-[75vh] overflow-y-auto"
+            className="sway-settings-panel border border-slate-800 bg-slate-950/90 backdrop-blur-md rounded-2xl p-5 shadow-2xl preferences-panel flex flex-col gap-4.5 pointer-events-auto"
             onPointerDown={(e) => e.stopPropagation()}
           >
           {/* Title / Header of panel */}
@@ -846,14 +862,14 @@ export default function App() {
               <div className="flex items-center gap-1.5 text-slate-200">
                 <Sliders size={14} className="text-teal-400" />
                 <h4 className="text-xs font-bold tracking-wider uppercase">
-                  疗愈偏好调节
+                  鐤楁剤鍋忓ソ璋冭妭
                 </h4>
               </div>
               
               <div className="flex items-center gap-2">
                 <button
                   onClick={restoreSereneDefaults}
-                  title="恢复默认"
+                  title="鎭㈠榛樿"
                   className="p-1 rounded-md text-slate-500 hover:text-slate-300 duration-150"
                   id="btn-reset-preferences"
                 >
@@ -873,7 +889,7 @@ export default function App() {
               
               {/* Theme Color Selector */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-slate-400 font-medium">色彩星境 Color Theme</span>
+                <span className="text-slate-400 font-medium">鑹插僵鏄熷 Color Theme</span>
                 <div className="grid grid-cols-3 gap-1.5">
                   {(Object.keys(PALETTES) as PaletteId[]).map((pid) => (
                     <button
@@ -894,7 +910,7 @@ export default function App() {
               {/* Ambient Sound Preferences Selector */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 font-medium">疗愈音效 Ambient Sound</span>
+                  <span className="text-slate-400 font-medium">鐤楁剤闊虫晥 Ambient Sound</span>
                   <button
                     onClick={() => setSoundEnabled(!soundEnabled)}
                     className={`text-[10px] px-2 py-0.5 rounded-full transition-colors cursor-pointer ${
@@ -903,7 +919,7 @@ export default function App() {
                         : 'bg-slate-900 text-slate-500 border border-slate-800'
                     }`}
                   >
-                    {soundEnabled ? '已开启' : '已关闭'}
+                    {soundEnabled ? '宸插紑鍚? : '宸插叧闂?}
                   </button>
                 </div>
                 
@@ -920,7 +936,7 @@ export default function App() {
                         : 'border-slate-900 bg-slate-950/40 text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    布朗噪音（专注模式）
+                    甯冩湕鍣煶锛堜笓娉ㄦā寮忥級
                   </button>
                   <button
                     onClick={() => {
@@ -933,7 +949,7 @@ export default function App() {
                         : 'border-slate-900 bg-slate-950/40 text-slate-400 hover:text-slate-200'
                     }`}
                   >
-                    海浪呼吸白噪音（冥想模式）
+                    娴锋氮鍛煎惛鐧藉櫔闊筹紙鍐ユ兂妯″紡锛?
                   </button>
                 </div>
                 
@@ -964,8 +980,8 @@ export default function App() {
               {/* Breathe cycle duration slide */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-medium">呼吸速率 (单次循环时长)</span>
-                  <span className="text-teal-400 font-mono font-medium">{breatheSpeed.toFixed(1)}秒</span>
+                  <span className="text-slate-400 font-medium">鍛煎惛閫熺巼 (鍗曟寰幆鏃堕暱)</span>
+                  <span className="text-teal-400 font-mono font-medium">{breatheSpeed.toFixed(1)}绉?/span>
                 </div>
                 <input
                   type="range"
@@ -977,15 +993,15 @@ export default function App() {
                   className="w-full accent-teal-400 h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer"
                 />
                 <div className="flex justify-between text-[9px] text-slate-500 font-mono">
-                  <span>快速降压 (3s)</span>
-                  <span>深度放松 (10s)</span>
+                  <span>蹇€熼檷鍘?(3s)</span>
+                  <span>娣卞害鏀炬澗 (10s)</span>
                 </div>
               </div>
 
               {/* Turbulence displacement scale selector */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex justify-between">
-                  <span className="text-slate-400 font-medium">触压水波振荡强度</span>
+                  <span className="text-slate-400 font-medium">瑙﹀帇姘存尝鎸崱寮哄害</span>
                   <span className="text-teal-400 font-mono font-medium">{Math.round(turbulenceScale * 100)}%</span>
                 </div>
                 <input
@@ -998,19 +1014,19 @@ export default function App() {
                   className="w-full accent-teal-400 h-1 bg-slate-900 rounded-lg appearance-none cursor-pointer"
                 />
                 <div className="flex justify-between text-[9px] text-slate-500 font-mono">
-                  <span>微澜 (20%)</span>
-                  <span>清风 (200%)</span>
+                  <span>寰緶 (20%)</span>
+                  <span>娓呴 (200%)</span>
                 </div>
               </div>
 
               {/* Line density choices */}
               <div className="flex flex-col gap-1.5">
-                <span className="text-slate-400 font-medium">环线密度 (运行性能微调)</span>
+                <span className="text-slate-400 font-medium">鐜嚎瀵嗗害 (杩愯鎬ц兘寰皟)</span>
                 <div className="grid grid-cols-3 gap-1.5">
                   {[
-                    { label: '极简 (40条)', val: 40 },
-                    { label: '平衡 (90条)', val: 90 },
-                    { label: '丰盈 (140条)', val: 140 }
+                    { label: '鏋佺畝 (40鏉?', val: 40 },
+                    { label: '骞宠　 (90鏉?', val: 90 },
+                    { label: '涓扮泩 (140鏉?', val: 140 }
                   ].map((density) => (
                     <button
                       key={density.val}
@@ -1030,6 +1046,8 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 }
+

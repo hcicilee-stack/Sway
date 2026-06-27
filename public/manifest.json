@@ -1,8 +1,9 @@
-{
+﻿{
   "name": "Sway",
   "short_name": "Sway",
   "description": "极简 ADHD 友好治愈视觉呼吸器",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#020408",
   "theme_color": "#02040a",
